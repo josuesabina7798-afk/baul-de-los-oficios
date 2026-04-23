@@ -1,25 +1,34 @@
 {
-  "name": "picocolors",
-  "version": "1.1.1",
-  "main": "./picocolors.js",
-  "types": "./picocolors.d.ts",
-  "browser": {
-    "./picocolors.js": "./picocolors.browser.js"
+  "name": "lightningcss-win32-x64-msvc",
+  "version": "1.32.0",
+  "license": "MPL-2.0",
+  "description": "A CSS parser, transformer, and minifier written in Rust",
+  "main": "lightningcss.win32-x64-msvc.node",
+  "browserslist": "last 2 versions, not dead",
+  "publishConfig": {
+    "access": "public"
   },
-  "sideEffects": false,
-  "description": "The tiniest and the fastest library for terminal output formatting with ANSI colors",
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/parcel"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/parcel-bundler/lightningcss.git"
+  },
+  "engines": {
+    "node": ">= 12.0.0"
+  },
   "files": [
-    "picocolors.*",
-    "types.d.ts"
+    "lightningcss.win32-x64-msvc.node"
   ],
-  "keywords": [
-    "terminal",
-    "colors",
-    "formatting",
-    "cli",
-    "console"
+  "resolutions": {
+    "lightningcss": "link:."
+  },
+  "os": [
+    "win32"
   ],
-  "author": "Alexey Raspopov",
-  "repository": "alexeyraspopov/picocolors",
-  "license": "ISC"
+  "cpu": [
+    "x64"
+  ]
 }
