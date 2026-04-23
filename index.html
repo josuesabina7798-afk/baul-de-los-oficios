@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tienda de los Oficios Perdidos</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#C1663B" />
+    <!-- Incluimos Google Fonts para una mejor tipografía -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <!-- El contenido se inyectará mediante main.js -->
+      <header>
+        <div class="title-app">Tienda de los<br>Oficios Perdidos</div>
+        <div class="top-actions">
+          <button id="btn-acc" class="btn-icon-large" style="background: var(--secondary-color); color: white;" aria-label="Centro de Accesibilidad">♿</button>
+          <button id="tts-btn" class="btn-icon-large" aria-label="Escuchar esta pantalla">🔊</button>
+          <button id="help-btn" class="btn-icon-large" aria-label="Ayuda">❓</button>
+        </div>
+      </header>
+
+      <div id="acc-panel-container"></div>
+
+      <main id="main-content">
+        <!-- Las pantallas se renderizarán aquí -->
+      </main>
+
+      <nav id="bottom-nav" class="bottom-nav hidden">
+        <!-- Renderizado dinámicamente según el rol -->
+      </nav>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+  </body>
+</html>

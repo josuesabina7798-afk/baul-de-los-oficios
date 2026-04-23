@@ -1,0 +1,16 @@
+{
+  "name": "Tienda de los Oficios Perdidos",
+  "short_name": "Oficios",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDF4E3",
+  "theme_color": "#C1663B",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+# DESCRIPCIÓN TÉCNICA DETALLADA PARA GENERACIÓN DE DIAGRAMA DE SECUENCIA
+# Aplicación: Tienda de los Oficios Perdidos (Baúl de los Oficios)
+
+Este documento describe la arquitectura lógica y los flujos de datos para que una IA genere un diagrama de secuencia exhaustivo.
+
+---
+
+## 1. ACTORES Y MÓDULOS DEL SISTEMA
+- **Usuario (Maestro/Aprendiz)**: El humano que interactúa con la interfaz.
+- **Interfaz (UI - main.js)**: Maneja el estado global, el renderizado de HTML y los escuchadores de eventos.
+- **Lógica de Base de Datos (DB - db.js)**: Capa de abstracción sobre IndexedDB para persistencia.
+- **Almacenamiento (IndexedDB)**: El motor del navegador que guarda 'videos', 'messages', 'settings' y 'comments'.
+- **APIs del Navegador**:
+    - SpeechSynthesis (Salida de Voz)
+    - SpeechRecognition (Dictado por Micrófono)
+    - URL (Creación de rutas temporales para video)
+- **Service Worker (sw.js)**: Maneja el caché y funcionamiento offline.
+
+---
+
+## 2. FLUJO: INICIALIZACIÓN Y CARGA
+1. **Usuario** abre la aplicación.
+2. **UI** llama a `initDB()` en **DB**.
+3. **DB** abre conexión con **IndexedDB** ('OficiosDB' v5).
+4. **IndexedDB** crea almacenes si no existen (videos, messages, settings, comments).
+5. **UI** llama a `getSetting('accSettings')` para recuperar ajustes de usuario.
+6. **UI** llama a `getAllVideos()` y `getDirectMessages()` para sincronizar el estado.
+7. **UI** renderiza `OnboardingTemplate` si no hay rol seleccionado.
+
+---
+
+## 3. FLUJO: SUBIDA DE VIDEO (MODO MAESTRO)
+1. **Usuario (Maestro)** selecciona archivo de video (`video-file`).
+2. **Usuario (Maestro)** puede usar el botón de dictado.
+    - **UI** activa `SpeechRecognition` de **Browser API**.
+    - **Browser API** devuelve texto al `textarea` de transcripción.
+3. **Usuario (Maestro)** pulsa "Publicar Video".
+4. **UI** captura datos (Título, Categoría, Blob del video, Transcripción, Método de Pago).
+5. **UI** llama a `db.saveVideo(newVideo)`.
+6. **DB** abre transacción de ESCRITURA en el almacén 'videos' de **IndexedDB**.
+7. **IndexedDB** confirma éxito.
+8. **UI** dispara `alert` y llama a `refreshVideos()` para actualizar la pantalla de inicio.
+
+---
+
+## 4. FLUJO: VISUALIZACIÓN Y REPRODUCCIÓN (MODO APRENDIZ)
+1. **Usuario (Aprendiz)** pulsa "Ver Video" en una tarjeta.
+2. **UI** busca el video en `state.videos` por ID.
+3. **UI** llama a `URL.createObjectURL(fileBlob)` de **Browser API**.
+4. **Browser API** devuelve una URL temporal (`blob:https://...`).
+5. **UI** inserta la URL en el atributo `src` del elemento `<video>`.
+6. **UI** llama a `refreshComments(videoId)`.
+7. **DB** consulta el almacén 'comments' filtrando por el index 'videoId' en **IndexedDB**.
+8. **UI** renderiza el reproductor y la lista de comentarios.
+
+---
+
+## 5. FLUJO: MENSAJERÍA Y SEGURIDAD (COMUNICACIÓN)
+1. **Usuario** escribe mensaje o comentario.
+2. **UI** intercepta el texto y llama a `validateSafety(text)`.
+3. **UI (Lógica Interna)**:
+    - Compara el texto con una lista negra de insultos.
+    - Usa una Expresión Regular (Regex) para detectar URLs o links prohibidos.
+4. **SI ES SEGURO**:
+    - **UI** llama a `db.saveComment()` o `db.saveDirectMessage()`.
+    - **DB** guarda en **IndexedDB**.
+5. **SI ES INSEGURO**:
+    - **UI** muestra alerta de seguridad y llama a `speak("Mensaje bloqueado")` mediante **SpeechSynthesis**.
+
+---
+
+## 6. FLUJO: CENTRO DE ACCESIBILIDAD (PERSISTENCIA)
+1. **Usuario** abre el panel y cambia un ajuste (ej: Activar Alto Contraste).
+2. **UI** actualiza el objeto `state.accSettings`.
+3. **UI** llama a `applyAccessibility()`.
+4. **UI** modifica las clases del `document.body` y actualiza la variable CSS `--font-size-base`.
+5. **UI** llama a `db.setSetting('accSettings', state.accSettings)`.
+6. **DB** actualiza el almacén 'settings' en **IndexedDB**.
+
+---
+
+## 7. FLUJO: FUNCIONAMIENTO OFFLINE
+1. **UI** solicita un archivo (ej: `style.css`).
+2. **Service Worker** intercepta la petición `fetch`.
+3. **Service Worker** busca en el caché local (`oficios-cache-vX`).
+4. **Service Worker** devuelve el archivo guardado sin consultar a internet.
